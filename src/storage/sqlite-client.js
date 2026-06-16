@@ -4,6 +4,8 @@
  */
 
 import Database from 'better-sqlite3';
+import { mkdirSync, existsSync } from 'fs';
+import { dirname } from 'path';
 import config from '../../config/sqlite.config.js';
 import logger from '../utils/logger.js';
 import { DatabaseError } from '../utils/error-handler.js';
@@ -19,6 +21,13 @@ class SQLiteClient {
   async connect() {
     try {
       logger.info(`Connessione a SQLite: ${config.dbPath}`);
+      
+      // Crea directory se non esiste
+      const dir = dirname(config.dbPath);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+        logger.info(`Directory creata: ${dir}`);
+      }
       
       // Better-sqlite3 è sincrono, creo wrapper async per compatibilità API
       this.db = new Database(config.dbPath, { 
