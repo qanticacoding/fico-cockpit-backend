@@ -1,0 +1,38 @@
+{
+  "name": "sap-sqlite-extractor",
+  "version": "1.0.0",
+  "description": "Sistema di estrazione dati SAP in SQLite con schedulazione job",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \"Tests not yet implemented\" && exit 0",
+    "init-db": "node scripts/init-database.js",
+    "init-voices": "node scripts/init-voice-database.js",
+    "migrate-voices": "node scripts/migrate-voices-json-to-db.js",
+    "setup-voices": "npm run init-voices && npm run migrate-voices"
+  },
+  "keywords": [
+    "sap",
+    "sqlite",
+    "etl",
+    "data-extraction",
+    "scheduler"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^9.4.0",
+    "express": "^4.18.2",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.4.5",
+    "axios": "^1.6.8"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

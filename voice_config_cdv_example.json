@@ -1,0 +1,181 @@
+{
+  "description": "Esempio configurazione voci per calcolo CDV (Costo Del Venduto)",
+  "comments": [
+    "CDV è composto da:",
+    "1. CDV_BASE: tutti i conti del set CDV (senza filtro CDC)",
+    "2. CDV_SGA_PRD: conti CDV_SGA filtrati per CDC Produzione",
+    "3. AMM_PRD: conti Ammortamenti filtrati per CDC Produzione",
+    "4. CDV_TOTALE: somma delle tre voci precedenti"
+  ],
+  "voices": [
+    {
+      "id": "cdv_base",
+      "name": "CDV Base",
+      "description": "Costi diretti del venduto - tutti i centri di costo",
+      "type": "BASE_A",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "CDV"
+      },
+      "filters": {
+        "year": 2025,
+        "periods": [1, 2, 3, 4, 5, 6]
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi"
+      }
+    },
+    {
+      "id": "cdv_sga_prd",
+      "name": "CDV SG&A Produzione",
+      "description": "Costi SG&A allocati alla Produzione",
+      "type": "BASE_B",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "CDV_SGA",
+        "comment": "Set conti Sales, General & Administration"
+      },
+      "set_cdc_ref": {
+        "setclass": "0101",
+        "setname": "PRD",
+        "comment": "Set centri di costo Produzione"
+      },
+      "filters": {
+        "year": 2025,
+        "periods": [1, 2, 3, 4, 5, 6]
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi"
+      }
+    },
+    {
+      "id": "amm_prd",
+      "name": "Ammortamenti Produzione",
+      "description": "Ammortamenti impianti e macchinari di produzione",
+      "type": "BASE_B",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "AMM",
+        "comment": "Set conti Ammortamenti"
+      },
+      "set_cdc_ref": {
+        "setclass": "0101",
+        "setname": "PRD",
+        "comment": "Set centri di costo Produzione"
+      },
+      "filters": {
+        "year": 2025,
+        "periods": [1, 2, 3, 4, 5, 6]
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "ammortamenti"
+      }
+    },
+    {
+      "id": "cdv_totale",
+      "name": "Costo Del Venduto Totale",
+      "description": "CDV comprensivo di costi diretti, SG&A e ammortamenti di produzione",
+      "type": "CALCULATED",
+      "formula": "cdv_base + cdv_sga_prd + amm_prd",
+      "dependencies": [
+        "cdv_base",
+        "cdv_sga_prd",
+        "amm_prd"
+      ],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi",
+        "hierarchy_level": 2
+      }
+    }
+  ],
+  "execution_flow": [
+    {
+      "step": 1,
+      "voice": "cdv_base",
+      "type": "BASE_A",
+      "operations": [
+        "GET /sap/bc/ybreakeven/yset?setclass=0109&setname=CDV",
+        "Extract keyid from setData[]",
+        "SELECT SUM(amount) FROM sap_fi_data WHERE account IN (...)",
+        "Cache result"
+      ]
+    },
+    {
+      "step": 2,
+      "voice": "cdv_sga_prd",
+      "type": "BASE_B",
+      "operations": [
+        "GET /sap/bc/ybreakeven/yset?setclass=0109&setname=CDV_SGA",
+        "GET /sap/bc/ybreakeven/yset?setclass=0101&setname=PRD",
+        "Extract keyid from both setData[]",
+        "SELECT SUM(amount) FROM sap_fi_data WHERE account IN (...) AND cost_center IN (...)",
+        "Cache result"
+      ]
+    },
+    {
+      "step": 3,
+      "voice": "amm_prd",
+      "type": "BASE_B",
+      "operations": [
+        "GET /sap/bc/ybreakeven/yset?setclass=0109&setname=AMM",
+        "GET /sap/bc/ybreakeven/yset?setclass=0101&setname=PRD",
+        "Extract keyid from both setData[]",
+        "SELECT SUM(amount) FROM sap_fi_data WHERE account IN (...) AND cost_center IN (...)",
+        "Cache result"
+      ]
+    },
+    {
+      "step": 4,
+      "voice": "cdv_totale",
+      "type": "CALCULATED",
+      "operations": [
+        "Load cached values: cdv_base, cdv_sga_prd, amm_prd",
+        "Evaluate formula: cdv_base + cdv_sga_prd + amm_prd",
+        "Cache result"
+      ]
+    }
+  ],
+  "expected_output_example": {
+    "voices": {
+      "cdv_base": {
+        "value": 150000.00,
+        "details": {
+          "accounts_count": 25,
+          "records_matched": 1250
+        }
+      },
+      "cdv_sga_prd": {
+        "value": 50000.00,
+        "details": {
+          "accounts_count": 15,
+          "cost_centers_count": 21,
+          "records_matched": 315
+        }
+      },
+      "amm_prd": {
+        "value": 30000.00,
+        "details": {
+          "accounts_count": 8,
+          "cost_centers_count": 21,
+          "records_matched": 168
+        }
+      },
+      "cdv_totale": {
+        "value": 230000.00,
+        "formula": "150000.00 + 50000.00 + 30000.00",
+        "dependencies_used": ["cdv_base", "cdv_sga_prd", "amm_prd"]
+      }
+    }
+  }
+}

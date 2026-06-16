@@ -1,0 +1,44 @@
+# Dati sensibili
+*.json
+!package.json
+!package-lock.json
+!config/voice_library.json
+!config/reports.json
+!*_example.json
+
+# Database files
+*.duckdb
+*.duckdb.wal
+*.db
+*.db-shm
+*.db-wal
+*.parquet
+data/*.db*
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+temp/

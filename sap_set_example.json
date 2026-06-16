@@ -1,0 +1,237 @@
+[
+  {
+    "setData": [
+      {
+        "keyid": "0038015430",
+        "description": "Costi indeducibili automezzi"
+      },
+      {
+        "keyid": "0038015440",
+        "description": "Costi indeducibili vari"
+      },
+      {
+        "keyid": "0038015450",
+        "description": "Prestazione di servizi"
+      },
+      {
+        "keyid": "0038015460",
+        "description": "Publicita' e propaganda"
+      },
+      {
+        "keyid": "0038015470",
+        "description": "Consulenze tecniche"
+      },
+      {
+        "keyid": "0038015500",
+        "description": "C/transito Vodafone"
+      },
+      {
+        "keyid": "0047005150",
+        "description": "Omaggi NON USARE"
+      },
+      {
+        "keyid": "0058005050",
+        "description": "Cancelleria c/acquisti"
+      },
+      {
+        "keyid": "0058005090",
+        "description": "Carburanti e lubrificanti"
+      },
+      {
+        "keyid": "0068015020",
+        "description": "Spese postali e valori bollati"
+      },
+      {
+        "keyid": "0068015030",
+        "description": "Spese telefoniche"
+      },
+      {
+        "keyid": "0068015060",
+        "description": "Altre utenze"
+      },
+      {
+        "keyid": "0068015070",
+        "description": "Mostre e fiere"
+      },
+      {
+        "keyid": "0068015080",
+        "description": "Regalie ed oblazioni"
+      },
+      {
+        "keyid": "0068015090",
+        "description": "Spese servizi ricerca personale"
+      },
+      {
+        "keyid": "0068015100",
+        "description": "Spese di rappresentanza"
+      },
+      {
+        "keyid": "0068015110",
+        "description": "Viaggi e trasferte"
+      },
+      {
+        "keyid": "0068015120",
+        "description": "Consulenza legale"
+      },
+      {
+        "keyid": "0068015121",
+        "description": "Certificazione GRS"
+      },
+      {
+        "keyid": "0068015130",
+        "description": "Consulenza fiscale"
+      },
+      {
+        "keyid": "0068015140",
+        "description": "Trasporti su vendite"
+      },
+      {
+        "keyid": "0068015150",
+        "description": "Spese bancarie"
+      },
+      {
+        "keyid": "0068015200",
+        "description": "Spese di manutenzione mobili ed arredi"
+      },
+      {
+        "keyid": "0068015210",
+        "description": "Spese di manutenzione macchine uff.ordinarie"
+      },
+      {
+        "keyid": "0068015220",
+        "description": "Spese di manutenzione macchine uff.elettriche"
+      },
+      {
+        "keyid": "0068015230",
+        "description": "Spese di manutenzione autoveicoli"
+      },
+      {
+        "keyid": "0068015240",
+        "description": "Spese di manutenzione autocarri"
+      },
+      {
+        "keyid": "0068015260",
+        "description": "Spese canone assistenza software"
+      },
+      {
+        "keyid": "0068015280",
+        "description": "Spese di manutenzione software"
+      },
+      {
+        "keyid": "0068015300",
+        "description": "Provvigioni"
+      },
+      {
+        "keyid": "0068015310",
+        "description": "Contributi enasarco"
+      },
+      {
+        "keyid": "0068015320",
+        "description": "Firr agenti"
+      },
+      {
+        "keyid": "0068015330",
+        "description": "Visite mediche"
+      },
+      {
+        "keyid": "0068015350",
+        "description": "Corsi formazione"
+      },
+      {
+        "keyid": "0068015370",
+        "description": "Vigilanza"
+      },
+      {
+        "keyid": "0068015380",
+        "description": "Varie"
+      },
+      {
+        "keyid": "0068015410",
+        "description": "Assicurazioni"
+      },
+      {
+        "keyid": "0068015420",
+        "description": "Assicurazioni indeducibili"
+      },
+      {
+        "keyid": "0068015430",
+        "description": "Rimborso chilometrico soci"
+      },
+      {
+        "keyid": "0068015500",
+        "description": "Assistenza Hardware"
+      },
+      {
+        "keyid": "0068015510",
+        "description": "Consulenze per certificazioni"
+      },
+      {
+        "keyid": "0068035050",
+        "description": "Noleggio autocarri"
+      },
+      {
+        "keyid": "0068035060",
+        "description": "Noleggio autovetture deducibile"
+      },
+      {
+        "keyid": "0068035070",
+        "description": "Noleggio autovetture indeducibile"
+      },
+      {
+        "keyid": "0068035090",
+        "description": "Noleggio auto soci indeducibili"
+      },
+      {
+        "keyid": "0068035100",
+        "description": "Noleggio auto dipendenti indeducibili"
+      },
+      {
+        "keyid": "0068035200",
+        "description": "Noleggio auto soci deducibili"
+      },
+      {
+        "keyid": "0068035300",
+        "description": "Noleggio auto dipendenti deducibili"
+      },
+      {
+        "keyid": "0068035400",
+        "description": "Leasing autocarri"
+      },
+      {
+        "keyid": "0068040050",
+        "description": "Erogazioni liberali per beneficenza"
+      },
+      {
+        "keyid": "0068050010",
+        "description": "Accantonamento indennita' supplettiva di clien"
+      },
+      {
+        "keyid": "0068056010",
+        "description": "Quote associative"
+      },
+      {
+        "keyid": "0068056060",
+        "description": "Multe e sanzioni indeducibili"
+      },
+      {
+        "keyid": "0068056070",
+        "description": "Abbonamenti a giornali, riviste e pubblicazioni"
+      },
+      {
+        "keyid": "0068056080",
+        "description": "Tassa possesso autovetture"
+      }
+    ],
+    "setHier": [
+      {
+        "setclass": "0109",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "SG_A",
+        "hierlevel": 0,
+        "valcount": 55,
+        "descript": "Sales General & Administration"
+      }
+    ]
+  }
+]

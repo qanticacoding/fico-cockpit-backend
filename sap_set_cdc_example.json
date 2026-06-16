@@ -1,0 +1,272 @@
+[
+  {
+    "setData": [
+      {
+        "keyid": "P_PSCROBO1",
+        "description": "Scarn. Punt. Robot"
+      },
+      {
+        "keyid": "ACQUMM",
+        "description": "Acquisti Mat. Stock"
+      },
+      {
+        "keyid": "P_IMBALL01",
+        "description": "Imballaggio"
+      },
+      {
+        "keyid": "P_INCOL001",
+        "description": "Incollaggio"
+      },
+      {
+        "keyid": "P_LAES0001",
+        "description": "Lavorazioni Esterne"
+      },
+      {
+        "keyid": "P_MANU0001",
+        "description": "Lavorazioni Manuali"
+      },
+      {
+        "keyid": "P_MODELL01",
+        "description": "MOD.RIA (Svil.Camp.)"
+      },
+      {
+        "keyid": "P_NESTING1",
+        "description": "Nesting"
+      },
+      {
+        "keyid": "P_PRODUZ01",
+        "description": "Direzione e Progr. P"
+      },
+      {
+        "keyid": "P_PSCARNI1",
+        "description": "Scarnitura Puntali"
+      },
+      {
+        "keyid": "P_PSMERIG1",
+        "description": "Smerigl.Puntali"
+      },
+      {
+        "keyid": "P_PTRANCI1",
+        "description": "Tranciatura Puntali"
+      },
+      {
+        "keyid": "P_PTRANCI2",
+        "description": "Tranciatura Rotoli"
+      },
+      {
+        "keyid": "P_SAGOMA01",
+        "description": "Sagomatura"
+      },
+      {
+        "keyid": "P_SCARN001",
+        "description": "Scar.Man. prima"
+      },
+      {
+        "keyid": "P_SCARN002",
+        "description": "Scar. Man. Dopo"
+      },
+      {
+        "keyid": "P_SCARN003",
+        "description": "Scar. Aut.-Scar-Rul"
+      },
+      {
+        "keyid": "P_SCARN004",
+        "description": "Rullatura"
+      },
+      {
+        "keyid": "P_SMUSSA01",
+        "description": "Smussatura"
+      },
+      {
+        "keyid": "P_TRANCE01",
+        "description": "Trance"
+      },
+      {
+        "keyid": "RIMANENZE",
+        "description": "Rimanenze"
+      }
+    ],
+    "setHier": [
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "PRD",
+        "hierlevel": 0,
+        "valcount": 0,
+        "descript": "Produzione"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "MOD",
+        "hierlevel": 1,
+        "valcount": 1,
+        "descript": "Modelleria R&D"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "ACS",
+        "hierlevel": 1,
+        "valcount": 2,
+        "descript": "Acquisti a Stock caratteristica"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "IPRD",
+        "hierlevel": 1,
+        "valcount": 1,
+        "descript": "Indiretti di Produzione"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "DPRD",
+        "hierlevel": 1,
+        "valcount": 1,
+        "descript": "Diretti Produzione"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_PRDMAC",
+        "hierlevel": 2,
+        "valcount": 0,
+        "descript": "Centri Macchine"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_TRANCE",
+        "hierlevel": 3,
+        "valcount": 3,
+        "descript": "Trance"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SMUSSA",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Smussatura"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SCARNI",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Scarnitura Prima"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SCARND",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Scarnitura Dopo"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SCARNA",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Scarnitura Automatica"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SCARNP",
+        "hierlevel": 3,
+        "valcount": 3,
+        "descript": "Scarnitura Puntali"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_MANUALE",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Lavorazioni Manuali"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_RULLAT",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Rullatura"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_INCOLLA",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Incollaggio"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_SAGOMA",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Sagomatura"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_PRDNMA",
+        "hierlevel": 2,
+        "valcount": 0,
+        "descript": "Centri PRD no Macchine"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_IMBALLA",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Imballaggio"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_NESTING",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "Nesting"
+      },
+      {
+        "setclass": "0101",
+        "coArea": "Z001",
+        "chrtAccts": "",
+        "groupname": "G_LAES",
+        "hierlevel": 3,
+        "valcount": 1,
+        "descript": "LAvorazioni Esterne"
+      }
+    ]
+  }
+]

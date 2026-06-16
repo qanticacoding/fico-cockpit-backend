@@ -1,0 +1,406 @@
+{
+  "report": {
+    "id": "breakeven_semestre_2025",
+    "name": "Break Even Analysis - Primo Semestre 2025",
+    "description": "Analisi del punto di pareggio con calcolo CDV, margini e indicatori operativi per il primo semestre 2025",
+    "author": "Finance Team",
+    "version": "1.0.0",
+    "category": "controllo_gestione",
+    "tags": ["break-even", "cdv", "margini", "produzione"],
+    "created_at": "2025-01-15",
+    "last_modified": "2025-04-20"
+  },
+  
+  "execution_params": {
+    "default_year": 2025,
+    "default_periods": [1, 2, 3, 4, 5, 6],
+    "currency": "EUR",
+    "decimal_places": 2,
+    "allow_user_override": true
+  },
+  
+  "voices": [
+    {
+      "id": "ricavi_totali",
+      "name": "Ricavi Totali",
+      "description": "Fatturato totale da vendite",
+      "type": "BASE_A",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "RICAVI"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "ricavi"
+      }
+    },
+    {
+      "id": "cdv_base",
+      "name": "CDV Base",
+      "description": "Costi diretti del venduto - tutti i centri di costo",
+      "type": "BASE_A",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "CDV"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi"
+      }
+    },
+    {
+      "id": "cdv_sga_prd",
+      "name": "CDV SG&A Produzione",
+      "description": "Costi SG&A allocati alla Produzione",
+      "type": "BASE_B",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "CDV_SGA"
+      },
+      "set_cdc_ref": {
+        "setclass": "0101",
+        "setname": "PRD"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi"
+      }
+    },
+    {
+      "id": "amm_prd",
+      "name": "Ammortamenti Produzione",
+      "description": "Ammortamenti impianti e macchinari di produzione",
+      "type": "BASE_B",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "AMM"
+      },
+      "set_cdc_ref": {
+        "setclass": "0101",
+        "setname": "PRD"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "ammortamenti"
+      }
+    },
+    {
+      "id": "cdv_totale",
+      "name": "Costo Del Venduto Totale",
+      "description": "CDV comprensivo di costi diretti, SG&A e ammortamenti di produzione",
+      "type": "CALCULATED",
+      "formula": "cdv_base + cdv_sga_prd + amm_prd",
+      "dependencies": ["cdv_base", "cdv_sga_prd", "amm_prd"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi",
+        "hierarchy_level": 2
+      }
+    },
+    {
+      "id": "costi_operativi",
+      "name": "Costi Operativi",
+      "description": "Costi fissi operativi (amministrazione, vendite, marketing)",
+      "type": "BASE_A",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "COSTI_FISSI"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi"
+      }
+    },
+    {
+      "id": "margine_lordo",
+      "name": "Margine Lordo",
+      "description": "Ricavi meno Costo Del Venduto",
+      "type": "CALCULATED",
+      "formula": "ricavi_totali - cdv_totale",
+      "dependencies": ["ricavi_totali", "cdv_totale"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "margini",
+        "hierarchy_level": 2
+      }
+    },
+    {
+      "id": "ebit",
+      "name": "EBIT (Utile Operativo)",
+      "description": "Earnings Before Interest and Taxes - Margine lordo meno costi operativi",
+      "type": "CALCULATED",
+      "formula": "margine_lordo - costi_operativi",
+      "dependencies": ["margine_lordo", "costi_operativi"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "margini",
+        "hierarchy_level": 3
+      }
+    },
+    {
+      "id": "margine_lordo_pct",
+      "name": "Margine Lordo %",
+      "description": "Percentuale margine lordo sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(margine_lordo / ricavi_totali) * 100",
+      "dependencies": ["margine_lordo", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 3
+      }
+    },
+    {
+      "id": "ebit_pct",
+      "name": "EBIT %",
+      "description": "Percentuale EBIT sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(ebit / ricavi_totali) * 100",
+      "dependencies": ["ebit", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 4
+      }
+    },
+    {
+      "id": "break_even_point",
+      "name": "Punto di Pareggio",
+      "description": "Ricavi necessari per coprire costi fissi",
+      "type": "CALCULATED",
+      "formula": "costi_operativi / (margine_lordo_pct / 100)",
+      "dependencies": ["costi_operativi", "margine_lordo_pct"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "indicatori",
+        "hierarchy_level": 4
+      }
+    },
+    {
+      "id": "safety_margin",
+      "name": "Margine di Sicurezza",
+      "description": "Differenza tra ricavi effettivi e punto di pareggio",
+      "type": "CALCULATED",
+      "formula": "ricavi_totali - break_even_point",
+      "dependencies": ["ricavi_totali", "break_even_point"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "indicatori",
+        "hierarchy_level": 5
+      }
+    },
+    {
+      "id": "safety_margin_pct",
+      "name": "Margine di Sicurezza %",
+      "description": "Percentuale del margine di sicurezza sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(safety_margin / ricavi_totali) * 100",
+      "dependencies": ["safety_margin", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 5
+      }
+    }
+  ],
+  
+  "layout": {
+    "sections": [
+      {
+        "id": "ricavi",
+        "title": "RICAVI",
+        "order": 1,
+        "voices": ["ricavi_totali"],
+        "show_total": false,
+        "style": {
+          "background_color": "#e8f5e9",
+          "font_weight": "bold"
+        }
+      },
+      {
+        "id": "costi",
+        "title": "COSTI DEL VENDUTO",
+        "order": 2,
+        "voices": ["cdv_base", "cdv_sga_prd", "amm_prd", "cdv_totale"],
+        "show_total": true,
+        "total_voice": "cdv_totale",
+        "style": {
+          "background_color": "#ffebee"
+        }
+      },
+      {
+        "id": "margine_lordo_section",
+        "title": "MARGINE LORDO",
+        "order": 3,
+        "voices": ["margine_lordo", "margine_lordo_pct"],
+        "show_total": false,
+        "style": {
+          "background_color": "#fff9c4",
+          "font_weight": "bold",
+          "border_top": "2px solid #333"
+        }
+      },
+      {
+        "id": "costi_operativi_section",
+        "title": "COSTI OPERATIVI",
+        "order": 4,
+        "voices": ["costi_operativi"],
+        "show_total": false,
+        "style": {
+          "background_color": "#ffebee"
+        }
+      },
+      {
+        "id": "ebit_section",
+        "title": "EBIT - UTILE OPERATIVO",
+        "order": 5,
+        "voices": ["ebit", "ebit_pct"],
+        "show_total": false,
+        "style": {
+          "background_color": "#c8e6c9",
+          "font_weight": "bold",
+          "border_top": "2px solid #333"
+        }
+      },
+      {
+        "id": "break_even_section",
+        "title": "ANALISI BREAK EVEN",
+        "order": 6,
+        "voices": [
+          "break_even_point",
+          "safety_margin",
+          "safety_margin_pct"
+        ],
+        "show_total": false,
+        "style": {
+          "background_color": "#e1f5fe",
+          "font_style": "italic"
+        }
+      }
+    ],
+    "show_hierarchy_level": true,
+    "indent_calculated_voices": true,
+    "show_formulas": false,
+    "show_dependencies": false
+  },
+  
+  "output_formats": [
+    {
+      "format": "json",
+      "enabled": true,
+      "options": {
+        "pretty_print": true,
+        "include_metadata": true
+      }
+    },
+    {
+      "format": "csv",
+      "enabled": true,
+      "options": {
+        "delimiter": ";",
+        "include_headers": true,
+        "flatten_sections": true
+      }
+    },
+    {
+      "format": "excel",
+      "enabled": true,
+      "options": {
+        "sheet_name": "Break Even Analysis",
+        "include_charts": true,
+        "apply_formatting": true,
+        "freeze_panes": "A2",
+        "column_widths": {
+          "name": 40,
+          "value": 15,
+          "unit": 10
+        }
+      }
+    },
+    {
+      "format": "pdf",
+      "enabled": false,
+      "options": {
+        "page_size": "A4",
+        "orientation": "portrait",
+        "include_logo": true,
+        "header": "Break Even Analysis - {{year}}",
+        "footer": "Generato il {{date}}"
+      }
+    }
+  ],
+  
+  "validation_rules": [
+    {
+      "rule": "ricavi_totali > 0",
+      "error_message": "I ricavi devono essere maggiori di zero"
+    },
+    {
+      "rule": "cdv_totale > 0",
+      "error_message": "Il CDV deve essere maggiore di zero"
+    },
+    {
+      "rule": "margine_lordo > 0",
+      "warning_message": "ATTENZIONE: Margine lordo negativo!"
+    },
+    {
+      "rule": "margine_lordo_pct > 20",
+      "warning_message": "Margine lordo inferiore al 20% - sotto soglia target"
+    }
+  ],
+  
+  "scheduling": {
+    "enabled": false,
+    "cron": "0 9 1 * *",
+    "timezone": "Europe/Rome",
+    "auto_export": true,
+    "export_path": "./reports/output/",
+    "notify_on_completion": true,
+    "notification_emails": ["finance@beltramesrl.local"]
+  },
+  
+  "permissions": {
+    "view": ["finance", "management", "controller"],
+    "execute": ["finance", "controller"],
+    "edit": ["finance_admin"],
+    "delete": ["finance_admin"]
+  }
+}

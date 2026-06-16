@@ -1,0 +1,91 @@
+{
+  "voice_library": {
+    "name": "Voice Library - Finance",
+    "description": "Libreria centralizzata di voci riutilizzabili per report finanziari",
+    "version": "1.0.0",
+    "last_updated": "2026-05-02"
+  },
+  
+  "voices": [
+    {
+      "category": "costi",
+      "description": "Costi del venduto",
+      "voices": [
+        {
+          "id": "costi_beni_servizi_prd",
+          "name": "Costi Beni e Servizi PRD",
+          "description": "Costi diretti beni e servizi per la produzione - set CDV",
+          "type": "BASE_A",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "CDV"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        },
+        {
+          "id": "costo_lavoro_prd",
+          "name": "Costo del Lavoro PRD",
+          "description": "Costi del personale produttivo - conti SG_A filtrati su CDC PRD",
+          "type": "BASE_B",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "SG_A"
+          },
+          "cost_center_set": {
+            "setclass": "0101",
+            "setname": "PRD"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-03"
+          }
+        },
+        {
+          "id": "ammortamento_prd",
+          "name": "Ammortamento PRD",
+          "description": "Ammortamenti area produzione - conti AMM filtrati su CDC PRD",
+          "type": "BASE_B",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "AMM"
+          },
+          "cost_center_set": {
+            "setclass": "0101",
+            "setname": "PRD"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-03"
+          }
+        },
+        {
+          "id": "costo_venduto_totale",
+          "name": "Costo del Venduto Totale",
+          "description": "Totale complessivo CDV = Beni/Servizi + Costo Lavoro + Ammortamenti",
+          "type": "CALCULATED",
+          "formula": "costi_beni_servizi_prd + costo_lavoro_prd + ammortamento_prd",
+          "dependencies": ["costi_beni_servizi_prd", "costo_lavoro_prd", "ammortamento_prd"],
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-03"
+          }
+        }
+      ]
+    }
+  ]
+}

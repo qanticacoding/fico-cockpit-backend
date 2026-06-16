@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Voci - FICO Cockpit</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    h1 { margin-bottom: 20px; color: #333; }
+    
+    /* Buttons */
+    button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary { background: #007bff; color: white; }
+    .btn-primary:hover { background: #0056b3; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-success:hover { background: #218838; }
+    .btn-danger { background: #dc3545; color: white; }
+    .btn-danger:hover { background: #c82333; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #5a6268; }
+    
+    /* Table */
+    table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+    tr:hover { background: #f8f9fa; }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-base-a { background: #e3f2fd; color: #1976d2; }
+    .badge-base-b { background: #fff3e0; color: #f57c00; }
+    .badge-calculated { background: #f3e5f5; color: #7b1fa2; }
+    
+    /* Form Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal-header h2 { font-size: 20px; }
+    .close {
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+    }
+    
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      color: #333;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .hidden { display: none !important; }
+    
+    /* Type selector */
+    .type-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .type-btn {
+      padding: 12px;
+      border: 2px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .type-btn.active {
+      border-color: #007bff;
+      background: #e3f2fd;
+      color: #007bff;
+      font-weight: 600;
+    }
+    
+    /* Messages */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+    }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>🎯 Gestione Voci</h1>
+      <button class="btn-primary" onclick="openCreateModal()">+ Nuova Voce</button>
+    </div>
+    
+    <div id="alert"></div>
+    
+    <table id="voicesTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Tipo</th>
+          <th>Categoria</th>
+          <th>Set Conti</th>
+          <th>Set CDC</th>
+          <th>Azioni</th>
+        </tr>
+      </thead>
+      <tbody id="voicesBody">
+        <tr><td colspan="7" class="loading">Caricamento...</td></tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Modal Create/Edit -->
+  <div id="voiceModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Nuova Voce</h2>
+        <span class="close" onclick="closeModal()">&times;</span>
+      </div>
+      
+      <form id="voiceForm" onsubmit="saveVoice(event)">
+        <div class="form-group">
+          <label>Tipo Voce *</label>
+          <div class="type-selector">
+            <div class="type-btn active" data-type="BASE_A" onclick="selectType('BASE_A')">
+              <div>BASE_A</div>
+              <small>Solo conti</small>
+            </div>
+            <div class="type-btn" data-type="BASE_B" onclick="selectType('BASE_B')">
+              <div>BASE_B</div>
+              <small>Conti + CDC</small>
+            </div>
+            <div class="type-btn" data-type="CALCULATED" onclick="selectType('CALCULATED')">
+              <div>CALCULATED</div>
+              <small>Formula</small>
+            </div>
+          </div>
+          <input type="hidden" id="voiceType" value="BASE_A">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="voiceId">ID Voce *</label>
+            <input type="text" id="voiceId" required placeholder="es: costo_venduto">
+          </div>
+          <div class="form-group">
+            <label for="voiceName">Nome *</label>
+            <input type="text" id="voiceName" required placeholder="es: Costo Del Venduto">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="voiceDescription">Descrizione</label>
+          <textarea id="voiceDescription" placeholder="Descrizione della voce..."></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="voiceCategory">Categoria</label>
+            <input type="text" id="voiceCategory" placeholder="es: costi, ricavi, margini">
+          </div>
+          <div class="form-group">
+            <label for="voiceSign">Segno</label>
+            <select id="voiceSign">
+              <option value="1">+1 (Positivo)</option>
+              <option value="-1">-1 (Negativo)</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Campi BASE_A e BASE_B -->
+        <div id="fieldsAccount" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="accountSetclass">Set Conti - Class *</label>
+              <select id="accountSetclass">
+                <option value="">Seleziona...</option>
+                <option value="0109">0109 - Conti</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="accountSetname">Set Conti - Name *</label>
+              <input type="text" id="accountSetname" placeholder="es: CDV">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campi solo BASE_B -->
+        <div id="fieldsCDC" class="hidden">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cdcSetclass">Set CDC - Class *</label>
+              <select id="cdcSetclass">
+                <option value="">Seleziona...</option>
+                <option value="0101">0101 - Centri di Costo</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="cdcSetname">Set CDC - Name *</label>
+              <input type="text" id="cdcSetname" placeholder="es: PRD">
+            </div>
+          </div>
+        </div>
+        
+        <!-- Campi CALCULATED -->
+        <div id="fieldsCalculated" class="hidden">
+          <div class="form-group">
+            <label for="voiceFormula">Formula *</label>
+            <input type="text" id="voiceFormula" placeholder="es: a + b + c">
+            <small style="color: #666;">Usa gli ID delle voci come variabili</small>
+          </div>
+          <div class="form-group">
+            <label for="voiceDependencies">Dipendenze (separate da virgola) *</label>
+            <input type="text" id="voiceDependencies" placeholder="es: costi_beni, costo_lavoro">
+          </div>
+        </div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" class="btn-secondary" onclick="closeModal()">Annulla</button>
+          <button type="submit" class="btn-success">Salva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+    let isEditMode = false;
+    let currentVoiceId = null;
+    
+    // Load voices on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadVoices();
+    });
+    
+    // Load voices from API
+    async function loadVoices() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/voices`);
+        const data = await res.json();
+        
+        if (!data.success) throw new Error(data.error);
+        
+        renderVoicesTable(data.voices);
+      } catch (error) {
+        showAlert('Errore caricamento voci: ' + error.message, 'error');
+      }
+    }
+    
+    // Render table
+    function renderVoicesTable(voices) {
+      const tbody = document.getElementById('voicesBody');
+      
+      if (voices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999;">Nessuna voce trovata</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = voices.map(v => `
+        <tr>
+          <td><code>${v.id}</code></td>
+          <td>${v.name}</td>
+          <td><span class="badge badge-${v.type.toLowerCase().replace('_', '-')}">${v.type}</span></td>
+          <td>${v.category || '-'}</td>
+          <td>${v.account_setname ? `${v.account_setclass}/${v.account_setname}` : '-'}</td>
+          <td>${v.costcenter_setname ? `${v.costcenter_setclass}/${v.costcenter_setname}` : '-'}</td>
+          <td>
+            <button class="btn-primary" style="font-size: 12px; padding: 4px 8px;" onclick="editVoice('${v.id}')">Modifica</button>
+            <button class="btn-danger" style="font-size: 12px; padding: 4px 8px;" onclick="deleteVoice('${v.id}')">Elimina</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+    
+    // Open create modal
+    function openCreateModal() {
+      isEditMode = false;
+      currentVoiceId = null;
+      document.getElementById('modalTitle').textContent = 'Nuova Voce';
+      document.getElementById('voiceForm').reset();
+      document.getElementById('voiceId').disabled = false;
+      selectType('BASE_A');
+      document.getElementById('voiceModal').classList.add('active');
+    }
+    
+    // Open edit modal
+    async function editVoice(id) {
+      try {
+        const res = await fetch(`${API_BASE}/admin/voices/${id}`);
+        const data = await res.json();
+        
+        if (!data.success) throw new Error(data.error);
+        
+        const v = data.voice;
+        isEditMode = true;
+        currentVoiceId = id;
+        
+        document.getElementById('modalTitle').textContent = 'Modifica Voce';
+        document.getElementById('voiceId').value = v.id;
+        document.getElementById('voiceId').disabled = true;
+        document.getElementById('voiceName').value = v.name;
+        document.getElementById('voiceDescription').value = v.description || '';
+        document.getElementById('voiceCategory').value = v.category || '';
+        document.getElementById('voiceSign').value = v.sign;
+        
+        selectType(v.type);
+        
+        if (v.type === 'BASE_A' || v.type === 'BASE_B') {
+          document.getElementById('accountSetclass').value = v.account_setclass || '';
+          document.getElementById('accountSetname').value = v.account_setname || '';
+        }
+        
+        if (v.type === 'BASE_B') {
+          document.getElementById('cdcSetclass').value = v.costcenter_setclass || '';
+          document.getElementById('cdcSetname').value = v.costcenter_setname || '';
+        }
+        
+        if (v.type === 'CALCULATED') {
+          document.getElementById('voiceFormula').value = v.formula || '';
+          document.getElementById('voiceDependencies').value = data.dependencies.join(', ');
+        }
+        
+        document.getElementById('voiceModal').classList.add('active');
+      } catch (error) {
+        showAlert('Errore caricamento voce: ' + error.message, 'error');
+      }
+    }
+    
+    // Close modal
+    function closeModal() {
+      document.getElementById('voiceModal').classList.remove('active');
+    }
+    
+    // Select voice type
+    function selectType(type) {
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+      });
+      document.getElementById('voiceType').value = type;
+      
+      // Show/hide fields
+      document.getElementById('fieldsAccount').classList.toggle('hidden', type === 'CALCULATED');
+      document.getElementById('fieldsCDC').classList.toggle('hidden', type !== 'BASE_B');
+      document.getElementById('fieldsCalculated').classList.toggle('hidden', type !== 'CALCULATED');
+    }
+    
+    // Save voice
+    async function saveVoice(e) {
+      e.preventDefault();
+      
+      const type = document.getElementById('voiceType').value;
+      const voiceData = {
+        id: document.getElementById('voiceId').value.trim(),
+        name: document.getElementById('voiceName').value.trim(),
+        description: document.getElementById('voiceDescription').value.trim() || null,
+        type: type,
+        category: document.getElementById('voiceCategory').value.trim() || null,
+        sign: parseInt(document.getElementById('voiceSign').value),
+        unit: 'EUR',
+        format: 'currency',
+        owner: 'admin'
+      };
+      
+      if (type === 'BASE_A' || type === 'BASE_B') {
+        voiceData.account_setclass = document.getElementById('accountSetclass').value;
+        voiceData.account_setname = document.getElementById('accountSetname').value.trim();
+      }
+      
+      if (type === 'BASE_B') {
+        voiceData.costcenter_setclass = document.getElementById('cdcSetclass').value;
+        voiceData.costcenter_setname = document.getElementById('cdcSetname').value.trim();
+      }
+      
+      if (type === 'CALCULATED') {
+        voiceData.formula = document.getElementById('voiceFormula').value.trim();
+        const deps = document.getElementById('voiceDependencies').value.trim();
+        voiceData.dependencies = deps ? deps.split(',').map(d => d.trim()) : [];
+      }
+      
+      try {
+        const url = isEditMode 
+          ? `${API_BASE}/admin/voices/${currentVoiceId}`
+          : `${API_BASE}/admin/voices`;
+        
+        const res = await fetch(url, {
+          method: isEditMode ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(voiceData)
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert(`Voce ${isEditMode ? 'aggiornata' : 'creata'} con successo!`, 'success');
+        closeModal();
+        loadVoices();
+      } catch (error) {
+        showAlert('Errore salvataggio: ' + error.message, 'error');
+      }
+    }
+    
+    // Delete voice
+    async function deleteVoice(id) {
+      if (!confirm(`Confermi eliminazione voce "${id}"?`)) return;
+      
+      try {
+        const res = await fetch(`${API_BASE}/admin/voices/${id}`, {
+          method: 'DELETE'
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error);
+        
+        showAlert('Voce eliminata con successo!', 'success');
+        loadVoices();
+      } catch (error) {
+        showAlert('Errore eliminazione: ' + error.message, 'error');
+      }
+    }
+    
+    // Show alert
+    function showAlert(message, type) {
+      const alert = document.getElementById('alert');
+      alert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+      setTimeout(() => alert.innerHTML = '', 5000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+{
+  "reports_library": {
+    "name": "Reports Library - Finance",
+    "description": "Libreria centralizzata di configurazioni report",
+    "version": "1.0.0",
+    "last_updated": "2026-05-03"
+  },
+  
+  "reports": [
+    {
+      "id": "costo_venduto",
+      "name": "Costo del Venduto",
+      "description": "Report CDV completo - Costi diretti di produzione (Beni/Servizi + Lavoro + Ammortamenti)",
+      "owner": "Finance Team",
+      "voices_used": [
+        "costi_beni_servizi_prd",
+        "costo_lavoro_prd",
+        "ammortamento_prd",
+        "costo_venduto_totale"
+      ],
+      "layout": {
+        "format": "simple",
+        "sections": [
+          {
+            "title": "Dettaglio Componenti CDV",
+            "voices": [
+              {
+                "voice_id": "costi_beni_servizi_prd",
+                "label": "Costi Beni e Servizi PRD",
+                "format": "currency"
+              },
+              {
+                "voice_id": "costo_lavoro_prd",
+                "label": "Costo del Lavoro PRD",
+                "format": "currency"
+              },
+              {
+                "voice_id": "ammortamento_prd",
+                "label": "Ammortamento PRD",
+                "format": "currency"
+              }
+            ]
+          },
+          {
+            "title": "Totale Costo del Venduto",
+            "voices": [
+              {
+                "voice_id": "costo_venduto_totale",
+                "label": "CDV Totale",
+                "format": "currency"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

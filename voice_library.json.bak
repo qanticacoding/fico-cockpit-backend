@@ -1,0 +1,319 @@
+{
+  "voice_library": {
+    "name": "Voice Library - Finance",
+    "description": "Libreria centralizzata di voci riutilizzabili per report finanziari",
+    "version": "1.0.0",
+    "last_updated": "2026-05-02"
+  },
+  
+  "voices": [
+    {
+      "category": "costi",
+      "description": "Costi del venduto e industriali",
+      "voices": [
+        {
+          "id": "costo_venduto",
+          "name": "Costo del Venduto (CDV)",
+          "description": "Totale costi diretti del venduto - tutti i conti del set CDV",
+          "type": "BASE_A",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "CDV"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        },
+        {
+          "id": "cdv_produzione",
+          "name": "CDV Produzione",
+          "description": "Costi del venduto allocati ai centri di costo produzione",
+          "type": "BASE_B",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "CDV"
+          },
+          "cost_center_set": {
+            "setclass": "0101",
+            "setname": "PRODUZIONE"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        }
+      ]
+    },
+    {
+      "category": "ricavi",
+      "description": "Voci di ricavo",
+      "voices": [
+        {
+          "id": "ricavi_totali",
+          "name": "Ricavi Totali",
+          "description": "Fatturato totale da vendite",
+          "type": "BASE_A",
+          "account_set": {
+            "setclass": "0109",
+            "setname": "RICAVI"
+          },
+          "sign": 1,
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        }
+      ]
+    },
+    {
+      "category": "margini",
+      "description": "Margini e indicatori calcolati",
+      "voices": [
+        {
+          "id": "margine_lordo",
+          "name": "Margine Lordo",
+          "description": "Ricavi meno costo del venduto (Ricavi - CDV)",
+          "type": "CALCULATED",
+          "formula": "ricavi_totali - costo_venduto",
+          "dependencies": ["ricavi_totali", "costo_venduto"],
+          "metadata": {
+            "unit": "EUR",
+            "format": "currency",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        },
+        {
+          "id": "margine_percentuale",
+          "name": "Margine Lordo %",
+          "description": "Margine lordo come percentuale dei ricavi",
+          "type": "CALCULATED",
+          "formula": "(margine_lordo / ricavi_totali) * 100",
+          "dependencies": ["margine_lordo", "ricavi_totali"],
+          "metadata": {
+            "unit": "%",
+            "format": "percentage",
+            "owner": "Finance Team",
+            "created_at": "2026-05-02"
+          }
+        }
+      ]
+    }
+  ]
+}
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "ammortamenti",
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "cdv_totale": {
+      "id": "cdv_totale",
+      "name": "Costo Del Venduto Totale",
+      "description": "CDV comprensivo di costi diretti, SG&A e ammortamenti di produzione",
+      "type": "CALCULATED",
+      "formula": "cdv_base + cdv_sga_prd + amm_prd",
+      "dependencies": ["cdv_base", "cdv_sga_prd", "amm_prd"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi",
+        "hierarchy_level": 2,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "costi_operativi": {
+      "id": "costi_operativi",
+      "name": "Costi Operativi",
+      "description": "Costi fissi operativi (amministrazione, vendite, marketing)",
+      "type": "BASE_A",
+      "set_conti_ref": {
+        "setclass": "0109",
+        "setname": "COSTI_FISSI"
+      },
+      "filters": {
+        "year": "{{year}}",
+        "periods": "{{periods}}"
+      },
+      "aggregation": "SUM",
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "costi",
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "margine_lordo": {
+      "id": "margine_lordo",
+      "name": "Margine Lordo",
+      "description": "Ricavi meno Costo Del Venduto",
+      "type": "CALCULATED",
+      "formula": "ricavi_totali - cdv_totale",
+      "dependencies": ["ricavi_totali", "cdv_totale"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "margini",
+        "hierarchy_level": 2,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "ebit": {
+      "id": "ebit",
+      "name": "EBIT (Utile Operativo)",
+      "description": "Earnings Before Interest and Taxes - Margine lordo meno costi operativi",
+      "type": "CALCULATED",
+      "formula": "margine_lordo - costi_operativi",
+      "dependencies": ["margine_lordo", "costi_operativi"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "margini",
+        "hierarchy_level": 3,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "margine_lordo_pct": {
+      "id": "margine_lordo_pct",
+      "name": "Margine Lordo %",
+      "description": "Percentuale margine lordo sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(margine_lordo / ricavi_totali) * 100",
+      "dependencies": ["margine_lordo", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 3,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "ebit_pct": {
+      "id": "ebit_pct",
+      "name": "EBIT %",
+      "description": "Percentuale EBIT sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(ebit / ricavi_totali) * 100",
+      "dependencies": ["ebit", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 4,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "break_even_point": {
+      "id": "break_even_point",
+      "name": "Punto di Pareggio",
+      "description": "Ricavi necessari per coprire costi fissi",
+      "type": "CALCULATED",
+      "formula": "costi_operativi / (margine_lordo_pct / 100)",
+      "dependencies": ["costi_operativi", "margine_lordo_pct"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "indicatori",
+        "hierarchy_level": 4,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "safety_margin": {
+      "id": "safety_margin",
+      "name": "Margine di Sicurezza",
+      "description": "Differenza tra ricavi effettivi e punto di pareggio",
+      "type": "CALCULATED",
+      "formula": "ricavi_totali - break_even_point",
+      "dependencies": ["ricavi_totali", "break_even_point"],
+      "metadata": {
+        "unit": "EUR",
+        "format": "currency",
+        "category": "indicatori",
+        "hierarchy_level": 5,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    },
+    
+    "safety_margin_pct": {
+      "id": "safety_margin_pct",
+      "name": "Margine di Sicurezza %",
+      "description": "Percentuale del margine di sicurezza sui ricavi",
+      "type": "CALCULATED",
+      "formula": "(safety_margin / ricavi_totali) * 100",
+      "dependencies": ["safety_margin", "ricavi_totali"],
+      "metadata": {
+        "unit": "%",
+        "format": "percentage",
+        "category": "indicatori",
+        "hierarchy_level": 5,
+        "owner": "Finance Team",
+        "created_at": "2025-01-15"
+      }
+    }
+  },
+  
+  "categories": {
+    "ricavi": {
+      "name": "Ricavi",
+      "description": "Tutte le voci relative ai ricavi",
+      "color": "#4caf50"
+    },
+    "costi": {
+      "name": "Costi",
+      "description": "Costi del venduto e operativi",
+      "color": "#f44336"
+    },
+    "ammortamenti": {
+      "name": "Ammortamenti",
+      "description": "Ammortamenti di impianti e macchinari",
+      "color": "#ff9800"
+    },
+    "margini": {
+      "name": "Margini",
+      "description": "Margini lordi e operativi",
+      "color": "#ffeb3b"
+    },
+    "indicatori": {
+      "name": "Indicatori",
+      "description": "Indicatori di performance e break even",
+      "color": "#2196f3"
+    }
+  },
+  
+  "usage_notes": {
+    "template_variables": [
+      "{{year}} - Sostituito con anno fiscale",
+      "{{periods}} - Sostituito con array periodi fiscali"
+    ],
+    "reusability": "Le voci possono essere referenziate in più report",
+    "versioning": "Ogni modifica alle voci dovrebbe incrementare la versione",
+    "maintenance": "Modificare le voci qui si riflette automaticamente su tutti i report che le usano"
+  }
+}
