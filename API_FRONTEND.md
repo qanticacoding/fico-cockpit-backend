@@ -1,10 +1,16 @@
 # 📡 API Documentation - FICO Cockpit Backend
 
-Documentazione completa delle API REST per sviluppatori frontend.
+Documentazione completa delle API REST 
 
-**Base URL:** `http://localhost:3000`  
+**Server:** SRV-NJS02  
+**Base URL:** `http://192.168.10.114:3456`  
+**Porta:** 3456  
 **Formato Response:** JSON  
 **Autenticazione:** Nessuna (TODO: implementare JWT in futuro)
+
+> **Nota per Testing Locale:**  
+> Se testi da localhost, usa: `http://localhost:3456`  
+> Se testi dalla rete aziendale, usa: `http://192.168.10.114:3456`
 
 ---
 
@@ -41,12 +47,17 @@ Verifica lo stato del sistema e la connettività dei componenti.
 
 **Esempio cURL:**
 ```bash
-curl http://localhost:3000/health
+curl http://192.168.10.114:3456/health
+```
+
+**Esempio Postman:**
+```
+GET http://192.168.10.114:3456/health
 ```
 
 **Esempio JavaScript (fetch):**
 ```javascript
-const response = await fetch('http://localhost:3000/health');
+const response = await fetch('http://192.168.10.114:3456/health');
 const data = await response.json();
 console.log(data.status); // "ok"
 ```
@@ -83,11 +94,16 @@ Esegue manualmente un job di estrazione dati da SAP.
 
 **Esempio JavaScript:**
 ```javascript
-const response = await fetch('http://localhost:3000/api/jobs/fi_monthly_extraction/run', {
+const response = await fetch('http://192.168.10.114:3456/api/jobs/fi_monthly_extraction/run', {
   method: 'POST'
 });
 const result = await response.json();
 console.log(result.message);
+```
+
+**Esempio Postman:**
+```
+POST http://192.168.10.114:3456/api/jobs/fi_monthly_extraction/run
 ```
 
 ### `GET /api/jobs/:jobId/status`
@@ -159,11 +175,16 @@ Ottiene il log delle estrazioni.
     "total": 120
   }
 }
+```192.168.10.114:3456/api/logs?limit=10');
+const data = await response.json();
+data.logs.forEach(log => {
+  console.log(`${log.job_id}: ${log.status} - ${log.records_extracted} records`);
+});
 ```
 
-**Esempio JavaScript:**
-```javascript
-// Ottieni ultimi 10 log
+**Esempio Postman:**
+```
+GET http://192.168.10.114:3456/api/logs?limit=10Ottieni ultimi 10 log
 const response = await fetch('http://localhost:3000/api/logs?limit=10');
 const data = await response.json();
 data.logs.forEach(log => {
@@ -214,18 +235,25 @@ Query sui dati contabili SAP FI memorizzati in SQLite.
   }
 }
 ```
-
-**Esempi JavaScript:**
-
-```javascript
-// Query base: tutti i dati 2025
-const response = await fetch('http://localhost:3000/api/data/fi?year=2025');
+192.168.10.114:3456/api/data/fi?year=2025');
 const data = await response.json();
 
 // Query filtrata: conto specifico nel Q1 2025
 const response = await fetch(
-  'http://localhost:3000/api/data/fi?year=2025&account=0014001010&period=1'
+  'http://192.168.10.114:3456/api/data/fi?year=2025&account=0014001010&period=1'
 );
+
+// Query con paginazione
+const response = await fetch(
+  'http://192.168.10.114:3456/api/data/fi?year=2025&limit=50&offset=100'
+);
+```
+
+**Esempi Postman:**
+```
+GET http://192.168.10.114:3456/api/data/fi?year=2025
+GET http://192.168.10.114:3456/api/data/fi?year=2025&account=0014001010&period=1
+GET http://192.168.10.114:3456/api/data/fi?year=2025&limit=50&offset=100
 
 // Query con paginazione
 const response = await fetch(
@@ -275,14 +303,23 @@ Recupera i membri di un Set SAP.
   "error": "Set non trovato",
   "setclass": "0109",
   "setname": "INVALID"
-}
+}192.168.10.114:3456/api/sets/0109/CDV');
+const data = await response.json();
+console.log(`Set CDV contiene ${data.metadata.memberCount} conti`);
+
+// Ottieni Set PRD (Centri di Costo Produzione)
+const response = await fetch('http://192.168.10.114:3456/api/sets/0101/PRD');
+const cdc = await response.json();
+console.log('Centri di costo PRD:', cdc.members);
 ```
 
-**Esempi JavaScript:**
-
-```javascript
-// Ottieni Set CDV (Costi Del Venduto)
-const response = await fetch('http://localhost:3000/api/sets/0109/CDV');
+**Esempi Postman:**
+```
+GET http://192.168.10.114:3456/api/sets/0109/CDV
+GET http://192.168.10.114:3456/api/sets/0101/PRD
+GET http://192.168.10.114:3456/api/sets/test
+GET http://192.168.10.114:3456/api/sets/cache/stats
+DELETE http://192.168.10.114:3456/api/sets/cache00/api/sets/0109/CDV');
 const data = await response.json();
 console.log(`Set CDV contiene ${data.metadata.memberCount} conti`);
 
@@ -539,20 +576,11 @@ Esegue una o più voci dalla libreria calcolando i valori in base ai parametri f
 ```json
 {
   "error": "Errore durante l'esecuzione della voce",
-  "voice_id": "costo_venduto",
-  "details": "Dipendenza 'costo_lavoro_prd' non risolta"
-}
-```
-
-**Esempi JavaScript:**
-
-```javascript
-// Esegui singola voce per anno completo 2025
-const response = await fetch('http://localhost:3000/api/voices/execute', {
+  "voice_id": "costo_venduto",192.168.10.114:3456/api/voices/execute', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    voice_ids: ['costo_venduto'],
+    voice_ids: ['costo_venduto_totale'],
     fiscal_year: 2025,
     period_from: 1,
     period_to: 12
@@ -562,11 +590,33 @@ const result = await response.json();
 console.log(`Costo del Venduto 2025: €${result.results[0].value.toLocaleString()}`);
 
 // Esegui multiple voci per Q1 2025
-const response = await fetch('http://localhost:3000/api/voices/execute', {
+const response = await fetch('http://192.168.10.114:3456/api/voices/execute', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
-    voice_ids: ['costi_beni_servizi_prd', 'costo_lavoro_prd', 'costo_venduto'],
+    voice_ids: ['costi_beni_servizi_prd', 'costo_lavoro_prd', 'costo_venduto_totale'],
+    fiscal_year: 2025,
+    period_from: 1,
+    period_to: 3
+  })
+});
+const result = await response.json();
+result.results.forEach(voice => {
+  console.log(`${voice.voice_name}: €${voice.value.toLocaleString()}`);
+});
+```
+
+**Esempio Postman:**
+```
+POST http://192.168.10.114:3456/api/voices/execute
+Content-Type: application/json
+
+{
+  "voice_ids": ["costo_venduto_totale"],
+  "fiscal_year": 2025,
+  "period_from": 1,
+  "period_to": 12
+} voice_ids: ['costi_beni_servizi_prd', 'costo_lavoro_prd', 'costo_venduto'],
     fiscal_year: 2025,
     period_from: 1,
     period_to: 3
@@ -671,25 +721,39 @@ Lista tutti i report disponibili.
     {
       "id": "breakeven_semestre_2025",
       "name": "Break-Even Semestre 2025",
-      "description": "Analisi break-even primo semestre 2025",
-      "voices_count": 8,
-      "created_at": "2026-05-02"
-    }
-  ],
-  "count": 1
-}
-```
-
-**Esempio JavaScript:**
-
-```javascript
-// Esegui report e scarica come CSV
-const response = await fetch('http://localhost:3000/api/reports/execute', {
+      "description": "Analisi break-e192.168.10.114:3456/api/reports/execute', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     report_id: 'breakeven_semestre_2025',
     fiscal_year: 2025,
+    period_from: 1,
+    period_to: 6,
+    format: 'csv'
+  })
+});
+
+if (response.ok) {
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'report.csv';
+  a.click();
+}
+```
+
+**Esempio Postman:**
+```
+POST http://192.168.10.114:3456/api/reports/execute
+Content-Type: application/json
+
+{
+  "report_id": "breakeven_semestre_2025",
+  "fiscal_year": 2025,
+  "period_from": 1,
+  "period_to": 6,
+  "format": "json"ear: 2025,
     period_from: 1,
     period_to: 6,
     format: 'csv'
@@ -932,11 +996,11 @@ function CostDashboard() {
       setLoading(true);
       
       // Esegui voci per calcolare costi
-      const response = await fetch('http://localhost:3000/api/voices/execute', {
+      const response = await fetch('http://192.168.10.114:3456/api/voices/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          voice_ids: ['costi_beni_servizi_prd', 'costo_lavoro_prd', 'costo_venduto'],
+          voice_ids: ['costi_beni_servizi_prd', 'costo_lavoro_prd', 'costo_venduto_totale'],
           fiscal_year: 2025,
           period_from: 1,
           period_to: 12
@@ -1087,10 +1151,15 @@ export interface SapSet {
 }
 
 export interface ApiError {
-  error: string;
-  details?: string;
-  code?: string;
-  timestamp?: string;
+  error: string; - Per sviluppo locale
+VITE_API_BASE_URL=http://localhost:3456
+VITE_API_TIMEOUT=30000
+VITE_ENABLE_REQUEST_LOGGING=true
+
+// .env.production (frontend) - Per produzione
+VITE_API_BASE_URL=http://192.168.10.114:3456
+VITE_API_TIMEOUT=30000
+VITE_ENABLE_REQUEST_LOGGING=fals
 }
 ```
 
@@ -1106,7 +1175,7 @@ VITE_API_BASE_URL=http://localhost:3000
 VITE_API_TIMEOUT=30000
 VITE_ENABLE_REQUEST_LOGGING=true
 ```
-
+192.168.10.114:3456
 ### Helper API Client
 
 ```javascript
