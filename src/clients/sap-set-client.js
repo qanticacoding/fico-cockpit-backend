@@ -95,6 +95,90 @@ class SapSetClient {
   }
 
   /**
+   * Fetch the list of sets for a given SAP set class
+   * @param {string} setclass - Set class (0109=Accounts, 0101=Cost Centers)
+   * @returns {Promise<Object>} { setclass, count, sets, fetchedAt, cached }
+   */
+  async fetchSetsByClass(setclass) {
+    const cacheKey = `list:${setclass}`;
+    this.stats.totalCalls++;
+
+    if (this.enableCache && this._isCacheValid(cacheKey)) {
+      this.stats.hits++;
+      logger.debug(`[SET CLIENT] Cache HIT: ${cacheKey}`);
+      const cached = this.cache.get(cacheKey);
+      return { ...cached.data, cached: true };
+    }
+
+    this.stats.misses++;
+    logger.debug(`[SET CLIENT] Cache MISS: ${cacheKey} - Fetching from SAP...`);
+
+    try {
+      const url = sapConfig.buildSetListUrl(setclass);
+      logger.info(`[SET CLIENT] Fetching Set List: ${setclass}`);
+      logger.debug(`[SET CLIENT] URL: ${url}`);
+
+      const response = await axios.get(url, {
+        timeout: sapConfig.setApi.timeout,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      const result = this._parseSetListResponse(response.data, setclass);
+
+      if (this.enableCache) {
+        this.cache.set(cacheKey, {
+          data: result,
+          timestamp: Date.now()
+        });
+        logger.debug(`[SET CLIENT] Cached set list: ${cacheKey} (${result.count} sets, TTL: ${this.cacheTTL}ms)`);
+      }
+
+      return { ...result, cached: false };
+    } catch (error) {
+      this.stats.errors++;
+      logger.error(`[SET CLIENT] Error fetching Set List ${setclass}:`, error.message);
+
+      if (error.response) {
+        logger.error(`[SET CLIENT] Response status: ${error.response.status}`);
+        logger.error(`[SET CLIENT] Response data:`, error.response.data);
+      } else if (error.request) {
+        logger.error(`[SET CLIENT] No response received - Network error or timeout`);
+      }
+
+      throw new Error(`Failed to fetch SAP Set List ${setclass}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Parse SAP Set List API response
+   * @private
+   */
+  _parseSetListResponse(data, setclass) {
+    if (!Array.isArray(data)) {
+      throw new Error('Invalid response format: expected array');
+    }
+
+    const sets = data
+      .filter(item => item && typeof item === 'object')
+      .map(item => ({
+        setname: item.setname,
+        description: item.descript || item.description || '',
+        subclass: item.subclass || '',
+        raw: item
+      }))
+      .filter(item => item.setname);
+
+    return {
+      setclass,
+      count: sets.length,
+      sets,
+      fetchedAt: new Date().toISOString()
+    };
+  }
+
+  /**
    * Parse SAP Set API response
    * Extracts member IDs from setData array
    * @private

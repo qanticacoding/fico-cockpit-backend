@@ -21,6 +21,12 @@ function createSetsRoutes(setClient) {
   router.get('/test', (req, res) => controller.testConnection(req, res));
 
   /**
+   * @route GET /api/sets/class/:setclass
+   * @desc Recupera lista dei Set SAP per classe
+   */
+  router.get('/class/:setclass', (req, res) => controller.getSetsByClass(req, res));
+
+  /**
    * @route GET /api/sets/:setclass/:setname
    * @desc Recupera Set SAP
    */

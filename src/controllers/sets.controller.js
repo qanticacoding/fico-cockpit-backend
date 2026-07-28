@@ -31,6 +31,29 @@ class SetsController {
   }
 
   /**
+   * Recupera lista dei Set SAP per classe
+   */
+  async getSetsByClass(req, res) {
+    if (!this.setClient) {
+      return res.status(503).json({ error: 'Set Client non disponibile' });
+    }
+
+    const { setclass } = req.params;
+
+    try {
+      logger.info(`Richiesta lista Set per classe: ${setclass}`);
+      const result = await this.setClient.fetchSetsByClass(setclass);
+      res.json(result);
+    } catch (error) {
+      logger.error(`Errore recupero lista Set ${setclass}:`, error);
+      res.status(500).json({
+        error: error.message,
+        setclass
+      });
+    }
+  }
+
+  /**
    * Recupera Set SAP
    */
   async getSet(req, res) {

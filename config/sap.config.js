@@ -39,6 +39,16 @@ const sapConfig = {
     url.searchParams.append('setname', setname);
     return url.toString();
   },
+
+  /**
+   * Costruisce URL completo per API lista set SAP
+   * @param {string} setclass - Classe del set (es: '0109')
+   */
+  buildSetListUrl(setclass) {
+    const url = new URL('/sap/bc/ybreakeven/ysetlist', this.baseUrl);
+    url.searchParams.append('setclass', setclass);
+    return url.toString();
+  },
   
   /**
    * Headers di default per richieste
