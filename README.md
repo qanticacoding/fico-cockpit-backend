@@ -130,6 +130,22 @@ GET /api/logs?limit=10
 .\utility.ps1 help      # Guida comandi
 ```
 
+### 🆕 Estrazione con Anno Parametrico
+
+```bash
+# Estrai anno corrente
+npm run extract-sap
+
+# Estrai anno specifico
+npm run extract-sap -- --year 2024
+
+# Estrai range di anni
+npm run extract-sap -- --yearFrom 2022 --yearTo 2024
+```
+
+**Quando usarlo:** Import dati storici, re-import anno specifico, test con periodi diversi.  
+📖 [Documentazione completa script](./scripts/README.md)
+
 ### File Configurazione
 
 | File | Descrizione |

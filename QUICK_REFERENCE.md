@@ -29,12 +29,33 @@ Invoke-RestMethod http://localhost:3000/health | ConvertTo-Json
 ### Estrazione Dati
 
 ```powershell
-# Estrazione manuale
+# Estrazione manuale (anno configurato nel job)
 .\utility.ps1 extract
 
 # Oppure comando diretto
 Invoke-RestMethod -Uri "http://localhost:3000/api/jobs/fi_monthly_extraction/run" -Method Post
 ```
+
+### 🆕 Estrazione con Anno Specifico
+
+```powershell
+# Anno corrente
+npm run extract-sap
+
+# Anno specifico (es: 2024)
+npm run extract-sap -- --year 2024
+
+# Range di anni (es: 2022-2024)
+npm run extract-sap -- --yearFrom 2022 --yearTo 2024
+
+# Diretto con Node
+node scripts/extract-sap-data.js --year 2023
+```
+
+**Quando usarlo:**
+- 📦 Import dati storici
+- 🔄 Re-import anno specifico
+- 🧪 Test con periodi diversi
 
 ---
 

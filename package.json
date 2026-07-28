@@ -11,7 +11,8 @@
     "init-db": "node scripts/init-database.js",
     "init-voices": "node scripts/init-voice-database.js",
     "migrate-voices": "node scripts/migrate-voices-json-to-db.js",
-    "setup-voices": "npm run init-voices && npm run migrate-voices"
+    "setup-voices": "npm run init-voices && npm run migrate-voices",
+    "extract-sap": "node scripts/extract-sap-data.js"
   },
   "keywords": [
     "sap",
