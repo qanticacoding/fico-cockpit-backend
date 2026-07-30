@@ -74,10 +74,8 @@ class VoicesController {
    */
   async getVoiceLibrary(req, res) {
     try {
-      // Carica library se necessario
-      if (!this.executor.voiceLibrary) {
-        await this.executor.loadVoiceLibrary();
-      }
+      // Ricarica sempre dal DB per avere dati aggiornati
+      await this.executor.loadVoiceLibrary();
 
       res.json({
         success: true,
@@ -100,10 +98,8 @@ class VoicesController {
     try {
       const { voiceId } = req.params;
 
-      // Carica library se necessario
-      if (!this.executor.voiceLibrary) {
-        await this.executor.loadVoiceLibrary();
-      }
+      // Ricarica sempre dal DB per avere dati aggiornati
+      await this.executor.loadVoiceLibrary();
 
       const voice = this.executor.getVoice(voiceId);
       
