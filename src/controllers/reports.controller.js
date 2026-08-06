@@ -142,6 +142,117 @@ class ReportsController {
       });
     }
   }
+
+  /**
+   * POST /api/reports
+   * Crea un nuovo report
+   */
+  async createReport(req, res) {
+    try {
+      const reportConfig = req.body;
+
+      if (!reportConfig || !reportConfig.id) {
+        return res.status(400).json({
+          success: false,
+          error: 'Parametro obbligatorio mancante: id'
+        });
+      }
+
+      const created = await this.reportExecutor.createReport(reportConfig);
+
+      res.status(201).json({
+        success: true,
+        report: created
+      });
+
+    } catch (error) {
+      logger.error('Errore creazione report:', error);
+
+      if (error.message.includes('già esistente')) {
+        return res.status(409).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Errore interno del server'
+      });
+    }
+  }
+
+  /**
+   * PUT /api/reports/:reportId
+   * Aggiorna un report esistente
+   */
+  async updateReport(req, res) {
+    try {
+      const { reportId } = req.params;
+      const updates = req.body;
+
+      if (!updates || Object.keys(updates).length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Body vuoto: nessun campo da aggiornare'
+        });
+      }
+
+      const updated = await this.reportExecutor.updateReport(reportId, updates);
+
+      res.json({
+        success: true,
+        report: updated
+      });
+
+    } catch (error) {
+      logger.error(`Errore aggiornamento report ${req.params.reportId}:`, error);
+
+      if (error.message.includes('non trovato')) {
+        return res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Errore interno del server'
+      });
+    }
+  }
+
+  /**
+   * DELETE /api/reports/:reportId
+   * Elimina un report
+   */
+  async deleteReport(req, res) {
+    try {
+      const { reportId } = req.params;
+
+      await this.reportExecutor.deleteReport(reportId);
+
+      res.json({
+        success: true,
+        message: `Report '${reportId}' eliminato`
+      });
+
+    } catch (error) {
+      logger.error(`Errore eliminazione report ${req.params.reportId}:`, error);
+
+      if (error.message.includes('non trovato')) {
+        return res.status(404).json({
+          success: false,
+          error: error.message
+        });
+      }
+
+      res.status(500).json({
+        success: false,
+        error: error.message || 'Errore interno del server'
+      });
+    }
+  }
 }
 
 export default ReportsController;

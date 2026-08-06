@@ -48,5 +48,23 @@ export function createReportsRoutes({ dbClient, setClient }) {
     await ctrl.getReport(req, res);
   });
 
+  // POST /api/reports - Crea un nuovo report
+  router.post('/', async (req, res) => {
+    const ctrl = await getController();
+    await ctrl.createReport(req, res);
+  });
+
+  // PUT /api/reports/:reportId - Aggiorna un report esistente
+  router.put('/:reportId', async (req, res) => {
+    const ctrl = await getController();
+    await ctrl.updateReport(req, res);
+  });
+
+  // DELETE /api/reports/:reportId - Elimina un report
+  router.delete('/:reportId', async (req, res) => {
+    const ctrl = await getController();
+    await ctrl.deleteReport(req, res);
+  });
+
   return router;
 }

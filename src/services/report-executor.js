@@ -21,6 +21,7 @@ class ReportExecutor {
    */
   async loadReportsLibrary(filePath = './config/reports.json') {
     try {
+      this.reportsFilePath = filePath;
       const content = await fs.readFile(filePath, 'utf-8');
       this.reportsLibrary = JSON.parse(content);
       
@@ -245,6 +246,95 @@ class ReportExecutor {
    */
   getReportConfig(reportId) {
     return this.getReport(reportId);
+  }
+
+  /**
+   * Salva la library su disco
+   * @private
+   */
+  async _saveReportsLibrary() {
+    const content = JSON.stringify(this.reportsLibrary, null, 2);
+    await fs.writeFile(this.reportsFilePath, content, 'utf-8');
+    logger.info('Reports library salvata su disco');
+  }
+
+  /**
+   * Crea un nuovo report
+   * @param {Object} reportConfig - Configurazione del nuovo report
+   * @returns {Object} Report creato
+   */
+  async createReport(reportConfig) {
+    if (!this.reportsLibrary) {
+      throw new Error('Reports library non caricata.');
+    }
+
+    const { id } = reportConfig;
+    if (!id) {
+      throw new Error('Campo obbligatorio mancante: id');
+    }
+    if (this.reportsMap.has(id)) {
+      throw new Error(`Report già esistente con id: ${id}`);
+    }
+
+    this.reportsLibrary.reports.push(reportConfig);
+    this.reportsMap.set(id, reportConfig);
+    this.reportsLibrary.reports_library.last_updated = new Date().toISOString().split('T')[0];
+
+    await this._saveReportsLibrary();
+    logger.info(`Report creato: ${id}`);
+    return reportConfig;
+  }
+
+  /**
+   * Aggiorna un report esistente (merge parziale)
+   * @param {string} reportId - ID del report da aggiornare
+   * @param {Object} updates - Campi da aggiornare
+   * @returns {Object} Report aggiornato
+   */
+  async updateReport(reportId, updates) {
+    if (!this.reportsLibrary) {
+      throw new Error('Reports library non caricata.');
+    }
+
+    const existing = this.reportsMap.get(reportId);
+    if (!existing) {
+      throw new Error(`Report non trovato: ${reportId}`);
+    }
+
+    // L'id non può essere modificato tramite update
+    const { id: _ignored, ...safeUpdates } = updates;
+
+    const updated = { ...existing, ...safeUpdates };
+
+    const idx = this.reportsLibrary.reports.findIndex(r => r.id === reportId);
+    this.reportsLibrary.reports[idx] = updated;
+    this.reportsMap.set(reportId, updated);
+    this.reportsLibrary.reports_library.last_updated = new Date().toISOString().split('T')[0];
+
+    await this._saveReportsLibrary();
+    logger.info(`Report aggiornato: ${reportId}`);
+    return updated;
+  }
+
+  /**
+   * Elimina un report
+   * @param {string} reportId - ID del report da eliminare
+   */
+  async deleteReport(reportId) {
+    if (!this.reportsLibrary) {
+      throw new Error('Reports library non caricata.');
+    }
+
+    if (!this.reportsMap.has(reportId)) {
+      throw new Error(`Report non trovato: ${reportId}`);
+    }
+
+    this.reportsLibrary.reports = this.reportsLibrary.reports.filter(r => r.id !== reportId);
+    this.reportsMap.delete(reportId);
+    this.reportsLibrary.reports_library.last_updated = new Date().toISOString().split('T')[0];
+
+    await this._saveReportsLibrary();
+    logger.info(`Report eliminato: ${reportId}`);
   }
 }
 

@@ -3,9 +3,8 @@
     "name": "Reports Library - Finance",
     "description": "Libreria centralizzata di configurazioni report",
     "version": "1.0.0",
-    "last_updated": "2026-05-03"
+    "last_updated": "2026-08-06"
   },
-  
   "reports": [
     {
       "id": "costo_venduto",
@@ -44,6 +43,36 @@
           {
             "title": "Totale Costo del Venduto",
             "voices": [
+              {
+                "voice_id": "costo_venduto_totale",
+                "label": "CDV Totale",
+                "format": "currency"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "report_test",
+      "name": "Report Test",
+      "description": "Report di test creato via API",
+      "owner": "Finance Team",
+      "voices_used": [
+        "costi_beni_servizi_prd",
+        "costo_venduto_totale"
+      ],
+      "layout": {
+        "format": "simple",
+        "sections": [
+          {
+            "title": "Dettaglio",
+            "voices": [
+              {
+                "voice_id": "costi_beni_servizi_prd",
+                "label": "Costi Beni e Servizi PRD",
+                "format": "currency"
+              },
               {
                 "voice_id": "costo_venduto_totale",
                 "label": "CDV Totale",
