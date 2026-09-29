@@ -1,107 +1,41 @@
 /**
  * Reports Controller
- * Gestisce richieste HTTP per esecuzione report
+ * CRUD delle definizioni report.
+ * Il controller non esegue report e non calcola voci.
  */
 
 import logger from '../utils/logger.js';
 
 class ReportsController {
-  constructor(reportExecutor) {
-    this.reportExecutor = reportExecutor;
+  constructor(reportService) {
+    this.reportService = reportService;
   }
 
-  /**
-   * POST /api/reports/execute
-   * Esegue un report completo
-   */
-  async executeReport(req, res) {
-    try {
-      const { report_id, fiscal_year, period_from, period_to } = req.body;
-
-      // Validazione input
-      if (!report_id) {
-        return res.status(400).json({
-          success: false,
-          error: 'Parametro obbligatorio mancante: report_id'
-        });
-      }
-
-      if (!fiscal_year) {
-        return res.status(400).json({
-          success: false,
-          error: 'Parametro obbligatorio mancante: fiscal_year'
-        });
-      }
-
-      // Validazione anno fiscale
-      if (typeof fiscal_year !== 'number' || fiscal_year < 2000 || fiscal_year > 2100) {
-        return res.status(400).json({
-          success: false,
-          error: 'fiscal_year deve essere un numero tra 2000 e 2100'
-        });
-      }
-
-      // Default periodi: 1-12 (tutto l'anno)
-      const periodFrom = period_from !== undefined ? period_from : 1;
-      const periodTo = period_to !== undefined ? period_to : 12;
-
-      // Validazione periodi (0-12: 0=saldo iniziale, 1-12=mesi)
-      if (periodFrom < 0 || periodFrom > 12 || periodTo < 0 || periodTo > 12) {
-        return res.status(400).json({
-          success: false,
-          error: 'period_from e period_to devono essere tra 0 e 12'
-        });
-      }
-
-      if (periodFrom > periodTo) {
-        return res.status(400).json({
-          success: false,
-          error: 'period_from non può essere maggiore di period_to'
-        });
-      }
-
-      logger.info(`Richiesta esecuzione report: ${report_id}`);
-
-      // Esegui report
-      const result = await this.reportExecutor.executeReport(report_id, {
-        fiscal_year,
-        period_from: periodFrom,
-        period_to: periodTo
-      });
-
-      res.json(result);
-
-    } catch (error) {
-      logger.error('Errore esecuzione report:', error);
-      
-      if (error.message.includes('non trovato')) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
-      }
-      
-      res.status(500).json({
-        success: false,
-        error: error.message || 'Errore interno del server'
-      });
-    }
-  }
-
-  /**
-   * GET /api/reports
-   * Lista tutti i report disponibili
-   */
   async listReports(req, res) {
     try {
-      const reports = this.reportExecutor.listReports();
+      const filters = {};
+
+      if (req.query.class) {
+        filters.reportClass = req.query.class;
+      }
+
+      if (req.query.enabled !== undefined) {
+        if (!['true', 'false'].includes(req.query.enabled)) {
+          return res.status(400).json({
+            success: false,
+            error: 'enabled deve essere true o false'
+          });
+        }
+        filters.enabled = req.query.enabled === 'true';
+      }
+
+      const reports = this.reportService.list(filters);
 
       res.json({
         success: true,
         reports,
         total: reports.length
       });
-
     } catch (error) {
       logger.error('Errore lista report:', error);
       res.status(500).json({
@@ -111,31 +45,24 @@ class ReportsController {
     }
   }
 
-  /**
-   * GET /api/reports/:reportId
-   * Ottiene configurazione di un report specifico
-   */
   async getReport(req, res) {
     try {
-      const { reportId } = req.params;
-
-      const config = this.reportExecutor.getReportConfig(reportId);
+      const report = this.reportService.getById(req.params.reportId);
 
       res.json({
         success: true,
-        report: config
+        report
       });
-
     } catch (error) {
       logger.error(`Errore dettaglio report ${req.params.reportId}:`, error);
-      
+
       if (error.message.includes('non trovato')) {
         return res.status(404).json({
           success: false,
           error: error.message
         });
       }
-      
+
       res.status(500).json({
         success: false,
         error: error.message || 'Errore interno del server'
@@ -143,36 +70,27 @@ class ReportsController {
     }
   }
 
-  /**
-   * POST /api/reports
-   * Crea un nuovo report
-   */
   async createReport(req, res) {
     try {
-      const reportConfig = req.body;
-
-      if (!reportConfig || !reportConfig.id) {
-        return res.status(400).json({
-          success: false,
-          error: 'Parametro obbligatorio mancante: id'
-        });
-      }
-
-      const created = await this.reportExecutor.createReport(reportConfig);
+      const report = this.reportService.create(req.body);
 
       res.status(201).json({
         success: true,
-        report: created
+        report
       });
-
     } catch (error) {
       logger.error('Errore creazione report:', error);
 
+      if (error.code === 'REPORT_VALIDATION_ERROR') {
+        return res.status(400).json({ success: false, error: error.message });
+      }
+
+      if (error.code === 'REPORT_VOICES_NOT_FOUND') {
+        return res.status(400).json({ success: false, error: error.message });
+      }
+
       if (error.message.includes('già esistente')) {
-        return res.status(409).json({
-          success: false,
-          error: error.message
-        });
+        return res.status(409).json({ success: false, error: error.message });
       }
 
       res.status(500).json({
@@ -182,37 +100,33 @@ class ReportsController {
     }
   }
 
-  /**
-   * PUT /api/reports/:reportId
-   * Aggiorna un report esistente
-   */
   async updateReport(req, res) {
     try {
-      const { reportId } = req.params;
-      const updates = req.body;
-
-      if (!updates || Object.keys(updates).length === 0) {
+      if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({
           success: false,
           error: 'Body vuoto: nessun campo da aggiornare'
         });
       }
 
-      const updated = await this.reportExecutor.updateReport(reportId, updates);
+      const report = this.reportService.update(req.params.reportId, req.body);
 
       res.json({
         success: true,
-        report: updated
+        report
       });
-
     } catch (error) {
       logger.error(`Errore aggiornamento report ${req.params.reportId}:`, error);
 
       if (error.message.includes('non trovato')) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
+        return res.status(404).json({ success: false, error: error.message });
+      }
+
+      if (
+        error.code === 'REPORT_VALIDATION_ERROR' ||
+        error.code === 'REPORT_VOICES_NOT_FOUND'
+      ) {
+        return res.status(400).json({ success: false, error: error.message });
       }
 
       res.status(500).json({
@@ -222,29 +136,15 @@ class ReportsController {
     }
   }
 
-  /**
-   * DELETE /api/reports/:reportId
-   * Elimina un report
-   */
   async deleteReport(req, res) {
     try {
-      const { reportId } = req.params;
-
-      await this.reportExecutor.deleteReport(reportId);
-
-      res.json({
-        success: true,
-        message: `Report '${reportId}' eliminato`
-      });
-
+      const result = this.reportService.delete(req.params.reportId);
+      res.json(result);
     } catch (error) {
       logger.error(`Errore eliminazione report ${req.params.reportId}:`, error);
 
       if (error.message.includes('non trovato')) {
-        return res.status(404).json({
-          success: false,
-          error: error.message
-        });
+        return res.status(404).json({ success: false, error: error.message });
       }
 
       res.status(500).json({
