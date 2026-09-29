@@ -17,21 +17,17 @@ import createAdminVoicesRoutes from './admin-voices.routes.js';
  * @param {Object} dependencies - Dipendenze (dbClient, scheduler, setClient)
  */
 function registerRoutes(app, { dbClient, scheduler, setClient }) {
-  // Health check
   app.use('/health', createHealthRoutes(dbClient, scheduler, setClient));
 
-  // API routes
   app.use('/api/sets', createSetsRoutes(setClient));
   app.use('/api/jobs', createJobsRoutes(scheduler, dbClient));
   app.use('/api/logs', createLogsRoutes(dbClient));
   app.use('/api/data', createDataRoutes(dbClient));
   app.use('/api/voices', createVoicesRoutes({ dbClient, setClient }));
-  app.use('/api/reports', createReportsRoutes({ dbClient, setClient }));
-  
-  // Admin routes
+  app.use('/api/reports', createReportsRoutes());
+
   app.use('/api/admin/voices', createAdminVoicesRoutes());
 
-  // 404 handler
   app.use((req, res) => {
     res.status(404).json({
       error: 'Not Found',
@@ -51,9 +47,11 @@ function registerRoutes(app, { dbClient, scheduler, setClient }) {
         'GET /api/voices/library',
         'GET /api/voices/:voiceId',
         'POST /api/voices/reload',
-        'POST /api/reports/execute',
         'GET /api/reports',
         'GET /api/reports/:reportId',
+        'POST /api/reports',
+        'PUT /api/reports/:reportId',
+        'DELETE /api/reports/:reportId',
         'GET /api/admin/voices',
         'POST /api/admin/voices',
         'GET /api/admin/voices/:id',
